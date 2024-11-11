@@ -1,17 +1,21 @@
 import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "../shared/database.service";
 import { RedisService } from "../shared/redis.service";
+import { Knex } from "knex";
 
 @Injectable()
 export class EventService {
+  knex: Knex;
+
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService,
-  ) {}
+  ) {
+    this.knex = this.databaseService.getKnex();
+  }
 
   async createEvent(eventData: any): Promise<any> {
-    const knex = this.databaseService.getKnex();
-    const [createdEvent] = await knex("events")
+    const [createdEvent] = await this.knex("events")
       .insert(eventData)
       .returning("*");
     await this.redisService.publish(
@@ -22,18 +26,15 @@ export class EventService {
   }
 
   async getEvents(): Promise<any[]> {
-    const knex = this.databaseService.getKnex();
-    return knex("events").select("*");
+    return this.knex("events").select("*");
   }
 
   async getEvent(id: number): Promise<any> {
-    const knex = this.databaseService.getKnex();
-    return knex("events").where({ id }).first();
+    return this.knex("events").where({ id }).first();
   }
 
   async updateEvent(id: number, eventData: any): Promise<any> {
-    const knex = this.databaseService.getKnex();
-    const [updatedEvent] = await knex("events")
+    const [updatedEvent] = await this.knex("events")
       .where({ id })
       .update(eventData)
       .returning("*");
@@ -45,8 +46,7 @@ export class EventService {
   }
 
   async deleteEvent(id: number): Promise<void> {
-    const knex = this.databaseService.getKnex();
-    await knex("events").where({ id }).del();
+    await this.knex("events").where({ id }).del();
     await this.redisService.publish(
       "event_updates",
       JSON.stringify({ id, deleted: true }),

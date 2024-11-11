@@ -1,16 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import knex, { Knex } from "knex";
-import * as knexConfig from "../../knexfile";
+import * as config from "../../knexfile";
 
 @Injectable()
 export class DatabaseService {
-  private readonly knex: Knex;
+  private readonly knexInstance: Knex;
 
   constructor() {
-    this.knex = knex(knexConfig.development);
+    this.knexInstance = knex(config[process.env.NODE_ENV || "development"]);
   }
 
   getKnex(): Knex {
-    return this.knex;
+    return this.knexInstance;
   }
 }

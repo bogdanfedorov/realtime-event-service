@@ -1,12 +1,14 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Server } from "socket.io";
 import { RedisService } from "../shared/redis.service";
 
 @Injectable()
-export class WebsocketService {
+export class WebsocketService implements OnModuleInit {
   private server: Server;
 
-  constructor(private readonly redisService: RedisService) {
+  constructor(private readonly redisService: RedisService) {}
+
+  onModuleInit() {
     this.subscribeToEventUpdates();
   }
 

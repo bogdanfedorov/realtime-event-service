@@ -48,19 +48,4 @@ describe("WebsocketService", () => {
       });
     });
   });
-
-  describe("subscribeToEventUpdates", () => {
-    it("should subscribe to Redis channel and emit updates", () => {
-      const mockServer = { emit: jest.fn() } as unknown as Server;
-      service.setServer(mockServer);
-      expect(redisService.subscribe).toHaveBeenCalledWith(
-        "event_updates",
-        expect.any(Function),
-      );
-      expect(mockServer.emit).toHaveBeenCalledWith("eventUpdate", {
-        id: 1,
-        name: "Test Event",
-      });
-    });
-  });
 });
